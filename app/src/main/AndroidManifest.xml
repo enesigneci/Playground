@@ -19,7 +19,7 @@
             android:name="ANALYTICS_KEY"
             android:value="${ANALYTICS_API_KEY}" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Playground">

@@ -1,4 +1,4 @@
-package com.enesigneci.playground.ui.theme
+package com.enesigneci.playground.presentation.theme
 
 import android.app.Activity
 import android.os.Build
