@@ -6,14 +6,17 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.enesigneci.playground.BuildConfig
 import com.enesigneci.playground.data.api.ApiService
+import com.enesigneci.playground.data.api.GitHubApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -24,17 +27,43 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    @Named("Non-SSL")
+    fun provideNonSSLRetrofit(@Named("Non-SSL") okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+    @Provides
+    @Singleton
+    @Named("SSL")
+    fun provideSSLRetrofit(@Named("SSL") okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl(BuildConfig.GITHUB_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(chuckerInterceptor: ChuckerInterceptor): OkHttpClient {
+    @Named("SSL")
+    fun provideSSLOkHttpClient(chuckerInterceptor: ChuckerInterceptor): OkHttpClient {
+        val hostName = "api.github.com"
+        val certificatePinner = CertificatePinner.Builder()
+            .add(hostName, "sha256/lmo8/KPXoMsxI+J9hY+ibNm2r0IYChmOsF9BxD74PVc=")
+            .build()
+        return OkHttpClient.Builder()
+            .addInterceptor(chuckerInterceptor)
+            .certificatePinner(certificatePinner)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("Non-SSL")
+    fun provideNonSSLOkHttpClient(chuckerInterceptor: ChuckerInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(chuckerInterceptor)
             .build()
@@ -70,7 +99,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService {
+    fun provideApiService(@Named("Non-SSL") retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideGitHubApiService(@Named("SSL") retrofit: Retrofit): GitHubApiService {
+        return retrofit.create(GitHubApiService::class.java)
     }
 }

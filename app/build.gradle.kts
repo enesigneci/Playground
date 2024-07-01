@@ -46,12 +46,14 @@ android {
         create("stage") {
             manifestPlaceholders += mapOf("ANALYTICS_API_KEY" to "stage api key")
             buildConfigField("String", "BASE_URL",  "\"https://jsonplaceholder.typicode.com\"")
+            buildConfigField("String", "GITHUB_BASE_URL",  "\"https://api.github.com\"")
             dimension = "environment"
             applicationIdSuffix = ".stage"
         }
         create("prod") {
             manifestPlaceholders += mapOf("ANALYTICS_API_KEY" to "prod api key")
             buildConfigField("String", "BASE_URL",  "\"https://jsonplaceholder.typicode.com\"")
+            buildConfigField("String", "GITHUB_BASE_URL",  "\"https://api.github.com\"")
             dimension = "environment"
         }
     }
